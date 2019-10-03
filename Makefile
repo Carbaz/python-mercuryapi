@@ -1,4 +1,5 @@
-APIVER ?= 1.29.4.34
+APIZIP ?= mercuryapi-1.31.2.zip
+APIVER ?= 1.31.2.40
 PYTHON ?= $(shell { command -v python3 || command -v python; } 2>/dev/null)
 
 .PHONY: all mercuryapi install
@@ -13,15 +14,15 @@ mercuryapi: mercuryapi-$(APIVER)/.done
 	make -C mercuryapi-$(APIVER)/c/src/api
 
 	mkdir -p build/mercuryapi/include
-	find mercuryapi-*/c/src/api -type f -name '*.h' ! -name '*_imp.h' | grep -v 'LTKC' | xargs cp -t build/mercuryapi/include
+	find mercuryapi-*/c/src/api -type f -name '*.h' ! -name '*_imp.h' ! -path '*ltkc_win32*' -exec cp {} build/mercuryapi/include/ \;
 
 	mkdir -p build/mercuryapi/lib
-	find mercuryapi-*/c/src/api -type f -name '*.a' -or -name '*.so.1' | xargs cp -t build/mercuryapi/lib
+	find mercuryapi-*/c/src/api -type f \( -name '*.a' -or -name '*.so.1' \) -exec cp {} build/mercuryapi/lib/ \;
 
-mercuryapi-$(APIVER)/.done: mercuryapi-$(APIVER).zip
-	unzip mercuryapi-$(APIVER).zip
+mercuryapi-$(APIVER)/.done: $(APIZIP)
+	unzip $(APIZIP)
 	patch -p0 -d mercuryapi-$(APIVER) < mercuryapi.patch
 	touch mercuryapi-$(APIVER)/.done
 
-mercuryapi-$(APIVER).zip:
-	wget http://www.thingmagic.com/images/Downloads/software/mercuryapi-$(APIVER).zip
+$(APIZIP):
+	curl https://www.jadaktech.com/wp-content/uploads/2018/11/$(APIZIP) -o $(APIZIP)
