@@ -1,6 +1,6 @@
 # Python wrapper for the ThingMagic Mercury API
 
-The [ThingMagic Mercury API](http://www.thingmagic.com/mercuryapi) is used to discover,
+The [ThingMagic Mercury API](https://www.jadaktech.com/products/thingmagic-rfid/thingmagic-mercury-api) is used to discover,
 provision and control ThingMagic RFID readers.
 
 Reading RFID tags is as simple as this:
@@ -17,7 +17,9 @@ print(reader.read())
 ## Installation
 On Windows, use the pre-compiled binary installer.
 
-On Linux, build and install using `pip install python-mercuryapi`.
+On Linux:
+ * Check prerequisites using `apt-get install unzip patch xsltproc gcc libreadline-dev`,
+ * Then build and install using `pip install python-mercuryapi`.
 
 Note: The build process will (temporarily) require upto 500MB of free space in `/tmp`.
 If your `/tmp` is smaller, use e.g. `pip install python-mercuryapi -b $HOME/tmp` to redirect.
@@ -170,6 +172,34 @@ else:
     print('No tag found')
 ```
 
+#### reader.enable_stats(*callback*)
+Provide reader stats during asynchronous tag reads.
+
+The function must be called before `reader.start_reading()`.
+
+For example:
+```python
+def stats_received(stats):
+    print({"temp" : stats.temperature})
+    print({"antenna" : stats.antenna})
+    print({"protocol" : stats.protocol})
+    print({"frequency" : stats.frequency})
+
+reader.enable_stats(stats_received)
+```
+
+### reader.enable_exception_handler(*callback*)
+Provide reader exception handling
+The function must be called before `reader.start_reading()`.
+
+For example:
+```python
+def exeception_handle(e):
+    print(e)
+
+reader.enable_exception_handler(exeception_handle)
+```
+
 #### reader.start_reading(*callback*, *on_time=250*, *off_time=0*)
 Starts asynchronous reading. It returns immediately and begins a sequence of
 reads or a continuous read. The results are passed to the *callback*.
@@ -249,6 +279,16 @@ print(reader.get_model())
 M6e Nano
 ```
 
+#### reader.get_software_version()
+Returns the software version of the reader hardware
+For example:
+```python
+print(reader.get_sofware_version())
+01.0B.03.11-20.19.07.12-BL12.12.13.00
+```
+01.0B.03 is the current firmware version
+
+
 #### reader.get_serial()
 Returns a serial number of the reader, the same number printed on the barcode label.
 
@@ -256,18 +296,21 @@ Returns a serial number of the reader, the same number printed on the barcode la
 Controls the Region of Operation for the connected device:
  * *region* represents the regulatory region that the device will operate in. Supported values are:
     * `"NA"`, North America/FCC
-    * `"NA2"`
-    * `"NA3"`
+    * `"NA2"`, Reduced FCC region
+    * `"NA3"`, 5MHZ FCC band
     * `"EU"`, European Union/ETSI EN 302 208
     * `"EU2"`, European Union/ETSI EN 300 220
     * `"EU3"`, European Union/ETSI Revised EN 302 208
+    * `"EU4"`, 4 channels (916.3MHz, 917.5MHz, 918.7MHz)
     * `"IS"`, Israel
     * `"IN"`, India
     * `"JP"`, Japan
+    * `"JP2"`, Japan 24dBm with 13 channels
+    * `"JP3"`, Japan 24dBm with 6 channels
     * `"KR"`, Korea MIC
     * `"KR2"`, Korea KCC
     * `"PRC"`, China
-    * `"PRC2"`
+    * `"PRC2", China 840MHZ
     * `"AU"`, Australia/AIDA LIPD Variation 2011
     * `"NZ"`, New Zealand
 
@@ -590,14 +633,14 @@ If you get the "ImportError: DLL load failed", make sure you have the
 installed.
 
 To build an installer for other Python releases you need to:
- * Download the latest [Mercury API](https://www.jadaktech.com/documentation/rfid/mercuryapi), e.g.
-   [mercuryapi-1.31.2.zip](https://www.jadaktech.com/wp-content/uploads/2018/11/mercuryapi-1.31.2.zip).
- * Go to mercuryapi-1.31.2.40\c\src\api\ltkc_win32 and run `gencode.bat`
- * Open mercuryapi-1.31.2.40\c\src\api\ltkc_win32\inc\stdint_win32.h and comment (or delete)
+ * Download the latest [Mercury API](https://www.jadaktech.com/products/thingmagic-rfid/thingmagic-mercury-api), e.g.
+   [mercuryapi-YEATS-1.31.4.35-1.zip](https://www.jadaktech.com/wp-content/uploads/2020/01/mercuryapi-YEATS-1.31.4.35-1.zip).
+ * Go to mercuryapi-1.31.4.35\c\src\api\ltkc_win32 and run `gencode.bat`
+ * Open mercuryapi-1.31.4.35\c\src\api\ltkc_win32\inc\stdint_win32.h and comment (or delete)
    the block of `typedef` for `int_fast8_t` through `uint_fast64_t` (8 lines)
  * Download the [latest pthreads-win32](ftp://sourceware.org/pub/pthreads-win32/dll-latest)
    binaries (both .dll and .lib) for your architecture and put them into
-   mercuryapi-1.31.2.40\c\src\pthreads-win32\x86 or \x64
+   mercuryapi-1.31.4.35\c\src\pthreads-win32\x86 or \x64
  * Obtain Microsoft Visual Studio 2017, including the Python extensions
  * Open the Solution and review the
    [setup-win.py](https://github.com/gotthardp/python-mercuryapi/blob/master/setup-win.py)
@@ -625,7 +668,7 @@ git clone https://github.com/gotthardp/python-mercuryapi.git
 cd python-mercuryapi
 make
 ```
-This will download and build the [Mercury API SDK](http://www.thingmagic.com/index.php/manuals-firmware)
+This will download and build the [Mercury API SDK](https://www.jadaktech.com/products/thingmagic-rfid/thingmagic-mercury-api)
 and then it will build the Python module itself.
 
 The `make` command will automatically determine which Python version is installed. If both
@@ -667,4 +710,4 @@ Or simply do `python setup.py build install`
 The python-mercuryapi is distributed under the terms of the MIT License.
 See the [LICENSE](LICENSE).
 
-Copyright (c) 2016-2019 Petr Gotthard
+Copyright (c) 2016-2020 Petr Gotthard

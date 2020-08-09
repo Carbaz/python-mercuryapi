@@ -1,5 +1,5 @@
-APIZIP ?= mercuryapi-1.31.2.zip
-APIVER ?= 1.31.2.40
+APIZIP ?= mercuryapi-YEATS-1.31.4.35-1.zip
+APIVER ?= 1.31.4.35
 PYTHON ?= $(shell { command -v python3 || command -v python; } 2>/dev/null)
 
 .PHONY: all mercuryapi install
@@ -25,4 +25,4 @@ mercuryapi-$(APIVER)/.done: $(APIZIP)
 	touch mercuryapi-$(APIVER)/.done
 
 $(APIZIP):
-	curl https://www.jadaktech.com/wp-content/uploads/2018/11/$(APIZIP) -o $(APIZIP)
+	curl https://www.jadaktech.com/wp-content/uploads/2020/01/$(APIZIP) -o $(APIZIP)
